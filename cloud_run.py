@@ -34,6 +34,9 @@ def load_calls():
         df["outcome"] = df["outcome"].astype(object)
         for col in ["model", "poly_slug", "poly_result", "kalshi_ticker", "kalshi_result"]:
             df[col] = df[col].astype(object)
+        for v in ["poly", "kalshi"]:   # repair any rows logged with bid/ask swapped
+            bad = df[f"{v}_bid"] > df[f"{v}_ask"]
+            df.loc[bad, [f"{v}_bid", f"{v}_ask"]] = df.loc[bad, [f"{v}_ask", f"{v}_bid"]].values
         return df
     return pd.DataFrame(columns=COLS)
 
@@ -95,8 +98,11 @@ def market_odds(q):
             tok = json.loads(mk["clobTokenIds"])[0]          # the "Up" token
             bid = ask = np.nan
             try:
-                ask = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "buy"}, timeout=10).json()["price"])
-                bid = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "sell"}, timeout=10).json()["price"])
+                # CLOB /price: side=buy is the best bid (what buyers pay), side=sell is the best ask
+                bid = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "buy"}, timeout=10).json()["price"])
+                ask = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "sell"}, timeout=10).json()["price"])
+                if bid > ask:
+                    bid, ask = ask, bid
             except Exception:
                 bid, ask = float(mk.get("bestBid", np.nan)), float(mk.get("bestAsk", np.nan))
             out[0:3] = [slug, bid, ask]
