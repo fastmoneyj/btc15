@@ -1,0 +1,24 @@
+name: btc15-hourly
+on:
+  schedule:
+    - cron: "57 * * * *"   # starts just before each hour; the job then covers that hour's 4 calls
+  workflow_dispatch:
+concurrency:
+  group: btc15
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pandas numpy scikit-learn requests joblib
+      - run: |
+          git config user.name "btc15-bot"
+          git config user.email "btc15-bot@users.noreply.github.com"
+      - run: python cloud_run.py
