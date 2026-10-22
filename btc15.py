@@ -23,7 +23,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import accuracy_score, roc_auc_score
 
-API = "https://api.exchange.coinbase.com/products/BTC-USD/candles"
+BASE = "https://api.exchange.coinbase.com/products"
+API = BASE + "/BTC-USD/candles"
+EXTRA_PRODUCTS = ["ETH-USD", "SOL-USD"]
 GRAN = 300          # 5-minute candles
 HORIZON = 3         # 3 candles ahead = 15 minutes
 TRAIN_DAYS = 90
@@ -33,7 +35,7 @@ CONF_BAND = 0.03    # "confident" calls are p_up > 0.53 or < 0.47
 
 
 # ---------------------------------------------------------------- data
-def fetch_candles(days):
+def fetch_candles(days, product="BTC-USD"):
     """Download `days` of completed 5-min candles, oldest first, on a gap-free grid."""
     now = dt.datetime.now(dt.timezone.utc)
     start_all = now - dt.timedelta(days=days)
@@ -41,7 +43,7 @@ def fetch_candles(days):
     rows, cur_end, tries = [], now, 0
     while cur_end > start_all:
         cur_start = max(start_all, cur_end - step)
-        r = requests.get(API, params={"granularity": GRAN,
+        r = requests.get(f"{BASE}/{product}/candles", params={"granularity": GRAN,
                                       "start": cur_start.isoformat(),
                                       "end": cur_end.isoformat()},
                          headers={"User-Agent": "btc15"}, timeout=20)
@@ -93,6 +95,27 @@ def make_features(df):
     f["hour_sin"] = np.sin(2 * np.pi * hour / 24)
     f["hour_cos"] = np.cos(2 * np.pi * hour / 24)
     f["weekend"] = (df.index.dayofweek >= 5).astype(float)
+    return f.replace([np.inf, -np.inf], np.nan)
+
+
+def add_extra_features(f, extras):
+    """Cross-asset and session features. `extras` maps product -> candle frame on the same grid."""
+    f = f.copy()
+    for prod, e in extras.items():
+        c = e["close"].reindex(f.index).ffill()
+        tag = prod.split("-")[0].lower()
+        lr = np.log(c).diff()
+        for k in [1, 3, 12]:
+            f[f"{tag}_ret_{k}"] = np.log(c / c.shift(k))
+        f[f"{tag}_vol_12"] = lr.rolling(12).std()
+        f[f"{tag}_lead_gap_3"] = f[f"{tag}_ret_3"] - f["ret_3"]
+    h = f.index.hour
+    dow = f.index.dayofweek
+    f["dow_sin"] = np.sin(2 * np.pi * dow / 7)
+    f["dow_cos"] = np.cos(2 * np.pi * dow / 7)
+    f["us_session"] = ((h >= 13) & (h < 21) & (dow < 5)).astype(float)   # ~9:30am-4pm ET
+    f["asia_session"] = ((h >= 0) & (h < 8)).astype(float)
+    f["europe_session"] = ((h >= 7) & (h < 16)).astype(float)
     return f.replace([np.inf, -np.inf], np.nan)
 
 
