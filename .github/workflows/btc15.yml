@@ -3,6 +3,9 @@ on:
   schedule:
     - cron: "57 * * * *"   # starts just before each hour; the job then covers that hour's 4 calls
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["cloud_run.py", "btc15.py", ".github/workflows/**"]
 concurrency:
   group: btc15
   cancel-in-progress: false
