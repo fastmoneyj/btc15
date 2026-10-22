@@ -15,7 +15,13 @@ CALLS = "calls.csv"
 TRAIN_DAYS = 60
 LATE_LIMIT = 240  # skip a call if we reach the mark more than 4 minutes late
 COLS = ["made_at", "price", "p_up", "call", "confident", "end_price", "outcome", "correct",
-        "model", "book_imbalance", "flow_imbalance"]
+        "model", "book_imbalance", "flow_imbalance",
+        "poly_slug", "poly_bid", "poly_ask", "poly_result",
+        "kalshi_ticker", "kalshi_bid", "kalshi_ask", "kalshi_result"]
+EDGE = 0.03          # paper-bet only when the model beats the market's price by 3+ cents
+POLY = "https://gamma-api.polymarket.com"
+CLOB = "https://clob.polymarket.com"
+KALSHI = "https://api.elections.kalshi.com/trade-api/v2"
 
 
 def utcnow():
@@ -26,7 +32,8 @@ def load_calls():
     if os.path.exists(CALLS):
         df = pd.read_csv(CALLS).reindex(columns=COLS)
         df["outcome"] = df["outcome"].astype(object)
-        df["model"] = df["model"].astype(object)
+        for col in ["model", "poly_slug", "poly_result", "kalshi_ticker", "kalshi_result"]:
+            df[col] = df[col].astype(object)
         return df
     return pd.DataFrame(columns=COLS)
 
@@ -72,6 +79,100 @@ def retrain():
     label = f"{best['name']} / {'expanded' if best['extra'] else 'base'} inputs ({best['X'].shape[1]} features)"
     table = [(r["name"], "expanded" if r["extra"] else "base", r["X"].shape[1], r["auc"], r["acc"]) for r in results]
     return model, list(best["X"].columns), best["extra"], best["acc"], best["n"], label, table
+
+
+def market_odds(q):
+    """Read-only snapshot of the Polymarket and Kalshi 'BTC up in this 15 min' prices for the window starting at q.
+    Returns (slug, up_bid, up_ask, ticker, yes_bid, yes_ask); missing pieces are NaN."""
+    import requests, json
+    out = [np.nan] * 6
+    ts = int(pd.Timestamp(q).timestamp())
+    try:
+        slug = f"btc-updown-15m-{ts}"
+        mk = requests.get(f"{POLY}/markets", params={"slug": slug}, timeout=10).json()
+        if mk:
+            mk = mk[0]
+            tok = json.loads(mk["clobTokenIds"])[0]          # the "Up" token
+            bid = ask = np.nan
+            try:
+                ask = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "buy"}, timeout=10).json()["price"])
+                bid = float(requests.get(f"{CLOB}/price", params={"token_id": tok, "side": "sell"}, timeout=10).json()["price"])
+            except Exception:
+                bid, ask = float(mk.get("bestBid", np.nan)), float(mk.get("bestAsk", np.nan))
+            out[0:3] = [slug, bid, ask]
+    except Exception as e:
+        print("polymarket odds failed:", e)
+    try:
+        close = ts + 900
+        r = requests.get(f"{KALSHI}/markets", params={"series_ticker": "KXBTC15M", "min_close_ts": close - 60,
+                                                       "max_close_ts": close + 60, "limit": 10}, timeout=10).json()
+        for mk in r.get("markets", []):
+            if int(pd.Timestamp(mk["close_time"]).timestamp()) == close:
+                out[3:6] = [mk["ticker"], float(mk["yes_bid_dollars"]), float(mk["yes_ask_dollars"])]
+                break
+    except Exception as e:
+        print("kalshi odds failed:", e)
+    return out
+
+
+def market_results(calls):
+    """Fill in how each market actually settled (its own price source, not Coinbase)."""
+    import requests, json
+    for i in calls.index:
+        slug = calls.at[i, "poly_slug"]
+        if isinstance(slug, str) and pd.isna(calls.at[i, "poly_result"]):
+            try:
+                mk = requests.get(f"{POLY}/markets", params={"slug": slug}, timeout=10).json()
+                if mk and mk[0].get("closed"):
+                    prices = [float(x) for x in json.loads(mk[0]["outcomePrices"])]
+                    if max(prices) >= 0.99:
+                        calls.at[i, "poly_result"] = "UP" if prices[0] > prices[1] else "DOWN"
+            except Exception as e:
+                print("polymarket result failed:", e)
+        tk = calls.at[i, "kalshi_ticker"]
+        if isinstance(tk, str) and pd.isna(calls.at[i, "kalshi_result"]):
+            try:
+                mk = requests.get(f"{KALSHI}/markets/{tk}", timeout=10).json()["market"]
+                if mk.get("result") in ("yes", "no"):
+                    calls.at[i, "kalshi_result"] = "UP" if mk["result"] == "yes" else "DOWN"
+            except Exception as e:
+                print("kalshi result failed:", e)
+    return calls
+
+
+def paper_bets(calls, venue):
+    """Hypothetical $1 contracts: buy the side the model rates EDGE above its ask. Nothing is traded."""
+    bid, ask, res = calls[f"{venue}_bid"], calls[f"{venue}_ask"], calls[f"{venue}_result"]
+    rows = []
+    for i in calls.index:
+        if pd.isna(ask[i]) or pd.isna(bid[i]):
+            continue
+        p = calls.at[i, "p_up"]
+        up_ask, down_ask = ask[i], 1 - bid[i]
+        if p - up_ask > EDGE:
+            side, price = "UP", up_ask
+        elif (1 - p) - down_ask > EDGE:
+            side, price = "DOWN", down_ask
+        else:
+            continue
+        if not isinstance(res[i], str):
+            rows.append((side, price, np.nan, np.nan))
+            continue
+        win = side == res[i]
+        pnl = (1 - price) if win else -price
+        fee = np.ceil(0.07 * price * (1 - price) * 100) / 100 if venue == "kalshi" else 0.0
+        rows.append((side, price, float(win), pnl - fee))
+    return pd.DataFrame(rows, columns=["side", "price", "win", "pnl"])
+
+
+def brier(calls, venue):
+    d = calls.dropna(subset=[f"{venue}_bid", f"{venue}_ask"])
+    d = d[d[f"{venue}_result"].isin(["UP", "DOWN"])]
+    if not len(d):
+        return None
+    y = (d[f"{venue}_result"] == "UP").astype(float)
+    mid = (d[f"{venue}_bid"] + d[f"{venue}_ask"]) / 2
+    return len(d), float(((d["p_up"] - y) ** 2).mean()), float(((mid - y) ** 2).mean())
 
 
 def order_flow():
@@ -145,12 +246,34 @@ def write_readme(calls, meta):
     lines += ["", "Inputs: BTC returns, volatility, volume, RSI, moving-average gaps, time of day; expanded adds ETH and SOL "
               "momentum/volatility, day of week, and US/Asia/Europe sessions. Order-book and trade-flow pressure are "
               "recorded with every call so they can be added once enough history builds up.", "",
-              "## Recent calls", "", "| Time (PT) | Price | P(up) | Call | 15 min later | Result |", "|---|---|---|---|---|---|"]
+              "## Model vs. the market (paper tracking only, nothing is traded)", "",
+              f"At each call the job records the Polymarket and Kalshi prices for that same 15-minute window. A paper bet is "
+              f"logged only when the model's probability beats the market's ask by {EDGE*100:.0f}+ cents, then settled with "
+              "the market's own result (Polymarket uses Chainlink, Kalshi uses CF Benchmarks). P&L is per $1 contract; "
+              "Kalshi includes its taker fee, Polymarket fees are not included.", "",
+              "| Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |",
+              "|---|---|---|---|---|---|---|"]
+    for venue, name in [("poly", "Polymarket"), ("kalshi", "Kalshi")]:
+        priced = int(calls[f"{venue}_ask"].notna().sum())
+        b = paper_bets(calls, venue)
+        s_ = b.dropna(subset=["win"])
+        br = brier(calls, venue)
+        brs = f"model {br[1]:.4f} vs market {br[2]:.4f} ({br[0]} windows)" if br else "—"
+        if len(s_):
+            lines.append(f"| {name} | {priced} | {len(s_)} | {s_.win.mean():.1%} | {s_.price.mean():.2f} | "
+                         f"{'+' if s_.pnl.sum() >= 0 else '−'}${abs(s_.pnl.sum()):.2f} | {brs} |")
+        else:
+            lines.append(f"| {name} | {priced} | 0 | — | — | — | {brs} |")
+    lines += ["", "If the market's Brier score stays lower than the model's, the market is the better forecaster and "
+              "the paper P&L should drift negative. That would mean there's no edge to trade.", "",
+              "## Recent calls", "", "| Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |", "|---|---|---|---|---|---|---|---|"]
     for _, r in calls.tail(40).iloc[::-1].iterrows():
         t = pd.Timestamp(r["made_at"]).tz_convert(la).strftime("%b %d %-I:%M %p")
         end = f"${r['end_price']:,.0f}" if pd.notna(r["end_price"]) else "pending"
         res = "pending" if pd.isna(r["correct"]) else ("✅ right" if r["correct"] else "❌ wrong")
-        lines.append(f"| {t} | ${r['price']:,.0f} | {r['p_up']:.1%} | {r['call']}{'' if r['confident'] else ' (lean)'} | {end} | {res} |")
+        pm = f"{r['poly_bid']:.2f}/{r['poly_ask']:.2f}" if pd.notna(r["poly_ask"]) else "—"
+        ks = f"{r['kalshi_bid']:.2f}/{r['kalshi_ask']:.2f}" if pd.notna(r["kalshi_ask"]) else "—"
+        lines.append(f"| {t} | ${r['price']:,.0f} | {r['p_up']:.1%} | {r['call']}{'' if r['confident'] else ' (lean)'} | {pm} | {ks} | {end} | {res} |")
     lines += ["", "Each call compares Coinbase BTC-USD at the quarter-hour mark with the price 15 minutes later. "
               "AUC/accuracy near 50% is a coin flip; a 1–2 point edge can vanish after fees or spreads. Not financial advice."]
     open("README.md", "w").write("\n".join(lines) + "\n")
@@ -205,13 +328,16 @@ def main():
             if len(X) and X.index[-1] == k:
                 p = float(model.predict_proba(X.iloc[[-1]])[:, 1][0])
                 book, flow = order_flow()
+                odds = market_odds(q)
                 calls.loc[len(calls)] = [str(pd.Timestamp(q)), float(df.at[k, "close"]), round(p, 4),
                                          "UP" if p > 0.5 else "DOWN", abs(p - 0.5) > m.CONF_BAND,
                                          np.nan, np.nan, np.nan, meta["label"],
                                          round(book, 4) if pd.notna(book) else np.nan,
-                                         round(flow, 4) if pd.notna(flow) else np.nan]
+                                         round(flow, 4) if pd.notna(flow) else np.nan,
+                                         odds[0], odds[1], odds[2], np.nan, odds[3], odds[4], odds[5], np.nan]
                 print(f"{q}: {'UP' if p > 0.5 else 'DOWN'} p={p:.3f}")
         calls = score(calls, df)
+        calls = market_results(calls)
         calls.to_csv(CALLS, index=False)
         write_readme(calls, meta)
         push(f"call {q:%Y-%m-%d %H:%M} UTC")
