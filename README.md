@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
-## Latest call: **DOWN**
-Oct 22, 4:15 PM PT at $81,267 · P(up) 47.6% · lean · resolves 4:30 PM
+## Latest call: **UP**
+Oct 22, 4:30 PM PT at $81,212 · P(up) 52.0% · lean · resolves 4:45 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 2/2 (100.0%) | 2/2 (100.0%) | 100.0% over 2 calls | 51.1% |
+| 3/3 (100.0%) | 2/2 (100.0%) | 100.0% over 3 calls | 51.1% |
 
 Model retrained Oct 22 4:01 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 2 | 0 | — | — | — | — |
-| Kalshi | 2 | 1 | 100.0% | 0.49 | +$0.49 | model 0.2158 vs market 0.2652 (1 windows) |
+| Polymarket | 3 | 0 | — | — | — | — |
+| Kalshi | 3 | 1 | 100.0% | 0.49 | +$0.49 | model 0.2158 vs market 0.2652 (1 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 4:15 PM | $81,267 | 47.6% | DOWN (lean) | 0.52/0.51 | 0.51/0.52 | pending | pending |
+| Oct 22 4:30 PM | $81,212 | 52.0% | UP (lean) | 0.46/0.45 | 0.47/0.48 | pending | pending |
+| Oct 22 4:15 PM | $81,267 | 47.6% | DOWN (lean) | 0.52/0.51 | 0.51/0.52 | $81,212 | ✅ right |
 | Oct 22 4:00 PM | $81,246 | 53.5% | UP | 0.50/0.49 | 0.48/0.49 | $81,267 | ✅ right |
 | Oct 22 3:15 PM | $81,350 | 45.0% | DOWN | — | — | $81,280 | ✅ right |
 
