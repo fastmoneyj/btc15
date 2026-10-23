@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 22, 5:45 PM PT at $81,372 · P(up) 45.1% · confident · resolves 6:00 PM
+Oct 22, 6:00 PM PT at $81,343 · P(up) 49.9% · lean · resolves 6:15 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 5/7 (71.4%) | 3/3 (100.0%) | 71.4% over 7 calls | 50.6% |
+| 6/8 (75.0%) | 4/4 (100.0%) | 75.0% over 8 calls | 50.6% |
 
 Model retrained Oct 22 5:31 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 7 | 0 | — | — | — | — |
-| Kalshi | 7 | 6 | 33.3% | 0.39 | −$0.49 | model 0.2286 vs market 0.1671 (6 windows) |
+| Polymarket | 8 | 0 | — | — | — | — |
+| Kalshi | 8 | 7 | 42.9% | 0.40 | +$0.07 | model 0.2250 vs market 0.1921 (7 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 5:45 PM | $81,372 | 45.1% | DOWN | 0.54/0.55 | 0.58/0.59 | pending | pending |
+| Oct 22 6:00 PM | $81,343 | 49.9% | DOWN (lean) | 0.54/0.55 | 0.54/0.55 | pending | pending |
+| Oct 22 5:45 PM | $81,372 | 45.1% | DOWN | 0.54/0.55 | 0.58/0.59 | $81,343 | ✅ right |
 | Oct 22 5:30 PM | $81,101 | 50.8% | UP (lean) | 0.67/0.68 | 0.66/0.67 | $81,372 | ✅ right |
 | Oct 22 5:15 PM | $81,137 | 52.3% | UP (lean) | 0.61/0.62 | 0.62/0.63 | $81,101 | ❌ wrong |
 | Oct 22 5:00 PM | $81,307 | 44.5% | DOWN | 0.31/0.32 | 0.35/0.36 | $81,137 | ✅ right |
