@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
-## Latest call: **UP**
-Oct 22, 5:30 PM PT at $81,101 · P(up) 50.8% · lean · resolves 5:45 PM
+## Latest call: **DOWN**
+Oct 22, 5:45 PM PT at $81,372 · P(up) 45.1% · confident · resolves 6:00 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 4/6 (66.7%) | 3/3 (100.0%) | 66.7% over 6 calls | 50.6% |
+| 5/7 (71.4%) | 3/3 (100.0%) | 71.4% over 7 calls | 50.6% |
 
 Model retrained Oct 22 5:31 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 6 | 0 | — | — | — | — |
-| Kalshi | 6 | 5 | 40.0% | 0.41 | −$0.13 | model 0.2260 vs market 0.1780 (5 windows) |
+| Polymarket | 7 | 0 | — | — | — | — |
+| Kalshi | 7 | 6 | 33.3% | 0.39 | −$0.49 | model 0.2286 vs market 0.1671 (6 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 5:30 PM | $81,101 | 50.8% | UP (lean) | 0.67/0.68 | 0.66/0.67 | pending | pending |
+| Oct 22 5:45 PM | $81,372 | 45.1% | DOWN | 0.54/0.55 | 0.58/0.59 | pending | pending |
+| Oct 22 5:30 PM | $81,101 | 50.8% | UP (lean) | 0.67/0.68 | 0.66/0.67 | $81,372 | ✅ right |
 | Oct 22 5:15 PM | $81,137 | 52.3% | UP (lean) | 0.61/0.62 | 0.62/0.63 | $81,101 | ❌ wrong |
 | Oct 22 5:00 PM | $81,307 | 44.5% | DOWN | 0.31/0.32 | 0.35/0.36 | $81,137 | ✅ right |
 | Oct 22 4:45 PM | $81,244 | 48.8% | DOWN (lean) | 0.68/0.69 | 0.69/0.70 | $81,307 | ❌ wrong |
