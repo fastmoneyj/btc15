@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 22, 7:15 PM PT at $81,291 · P(up) 48.8% · lean · resolves 7:30 PM
+Oct 22, 7:30 PM PT at $81,516 · P(up) 46.5% · confident · resolves 7:45 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 8/13 (61.5%) | 5/7 (71.4%) | 61.5% over 13 calls | 50.7% |
+| 8/14 (57.1%) | 5/7 (71.4%) | 57.1% over 14 calls | 50.7% |
 
 Model retrained Oct 22 6:33 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 13 | 0 | — | — | — | — |
-| Kalshi | 13 | 12 | 50.0% | 0.39 | +$1.03 | model 0.2335 vs market 0.2188 (12 windows) |
+| Polymarket | 14 | 0 | — | — | — | — |
+| Kalshi | 14 | 12 | 50.0% | 0.39 | +$1.03 | model 0.2357 vs market 0.2239 (13 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 7:15 PM | $81,291 | 48.8% | DOWN (lean) | 0.45/0.47 | 0.46/0.47 | pending | pending |
+| Oct 22 7:30 PM | $81,516 | 46.5% | DOWN | 0.50/0.51 | 0.51/0.52 | pending | pending |
+| Oct 22 7:15 PM | $81,291 | 48.8% | DOWN (lean) | 0.45/0.47 | 0.46/0.47 | $81,516 | ❌ wrong |
 | Oct 22 7:00 PM | $81,233 | 48.9% | DOWN (lean) | 0.46/0.47 | 0.42/0.43 | $81,291 | ❌ wrong |
 | Oct 22 6:45 PM | $81,380 | 45.9% | DOWN | 0.61/0.62 | 0.60/0.61 | $81,233 | ✅ right |
 | Oct 22 6:30 PM | $81,371 | 46.4% | DOWN | 0.21/0.22 | 0.21/0.22 | $81,380 | ❌ wrong |
