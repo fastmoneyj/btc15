@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 22, 6:00 PM PT at $81,343 · P(up) 49.9% · lean · resolves 6:15 PM
+Oct 22, 6:15 PM PT at $81,325 · P(up) 46.3% · confident · resolves 6:30 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 6/8 (75.0%) | 4/4 (100.0%) | 75.0% over 8 calls | 50.6% |
+| 7/9 (77.8%) | 4/4 (100.0%) | 77.8% over 9 calls | 50.6% |
 
 Model retrained Oct 22 5:31 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 8 | 0 | — | — | — | — |
-| Kalshi | 8 | 7 | 42.9% | 0.40 | +$0.07 | model 0.2250 vs market 0.1921 (7 windows) |
+| Polymarket | 9 | 0 | — | — | — | — |
+| Kalshi | 9 | 8 | 37.5% | 0.41 | −$0.41 | model 0.2283 vs market 0.1939 (8 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 6:00 PM | $81,343 | 49.9% | DOWN (lean) | 0.54/0.55 | 0.54/0.55 | pending | pending |
+| Oct 22 6:15 PM | $81,325 | 46.3% | DOWN | 0.38/0.39 | 0.42/0.43 | pending | pending |
+| Oct 22 6:00 PM | $81,343 | 49.9% | DOWN (lean) | 0.54/0.55 | 0.54/0.55 | $81,325 | ✅ right |
 | Oct 22 5:45 PM | $81,372 | 45.1% | DOWN | 0.54/0.55 | 0.58/0.59 | $81,343 | ✅ right |
 | Oct 22 5:30 PM | $81,101 | 50.8% | UP (lean) | 0.67/0.68 | 0.66/0.67 | $81,372 | ✅ right |
 | Oct 22 5:15 PM | $81,137 | 52.3% | UP (lean) | 0.61/0.62 | 0.62/0.63 | $81,101 | ❌ wrong |
