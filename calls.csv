@@ -69,4 +69,5 @@ made_at,price,p_up,call,confident,end_price,outcome,correct,model,book_imbalance
 2026-10-23 16:00:00+00:00,81582.35,0.4771,DOWN,False,81470.01,DOWN,1.0,logistic / base inputs (21 features),-0.409,0.0814,btc-updown-15m-1792771200,0.41,0.42,,KXBTC15M-26OCT231215-15,0.43,0.44,DOWN
 2026-10-23 16:15:00+00:00,81470.01,0.5151,UP,False,81392.65,DOWN,0.0,logistic / base inputs (21 features),0.0423,0.142,btc-updown-15m-1792772100,0.37,0.38,,KXBTC15M-26OCT231230-30,0.38,0.39,DOWN
 2026-10-23 16:30:00+00:00,81392.65,0.4916,DOWN,False,81657.31,UP,0.0,logistic / base inputs (21 features),-0.0978,-0.4932,btc-updown-15m-1792773000,0.54,0.55,,KXBTC15M-26OCT231245-45,0.0,0.0,UP
-2026-10-23 16:45:00+00:00,81657.31,0.4885,DOWN,False,,,,logistic / base inputs (21 features),-0.216,-0.4314,btc-updown-15m-1792773900,0.53,0.54,,KXBTC15M-26OCT231300-00,0.0,0.0,
+2026-10-23 16:45:00+00:00,81657.31,0.4885,DOWN,False,81610.51,DOWN,1.0,logistic / base inputs (21 features),-0.216,-0.4314,btc-updown-15m-1792773900,0.53,0.54,,KXBTC15M-26OCT231300-00,0.0,0.0,DOWN
+2026-10-23 17:00:00+00:00,81610.51,0.4773,DOWN,False,,,,logistic / base inputs (21 features),0.0164,-0.3663,btc-updown-15m-1792774800,0.53,0.54,,KXBTC15M-26OCT231315-15,0.52,0.53,
