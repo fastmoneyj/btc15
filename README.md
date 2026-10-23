@@ -1,22 +1,22 @@
 # BTC 15-Minute Predictor
 
-## Latest call: **DOWN**
-Oct 23, 3:15 AM PT at $81,705 · P(up) 46.6% · confident · resolves 3:30 AM
+## Latest call: **UP**
+Oct 23, 3:30 AM PT at $81,613 · P(up) 50.3% · lean · resolves 3:45 AM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 23/44 (52.3%) | 12/21 (57.1%) | 52.3% over 44 calls | 50.6% |
+| 24/45 (53.3%) | 13/22 (59.1%) | 53.3% over 45 calls | 50.7% |
 
-Model retrained Oct 23 2:25 AM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
+Model retrained Oct 23 3:24 AM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
 **In use:** logistic / base inputs (21 features). Each hour four candidates compete on held-out data and the best is kept:
 
 | Model | Inputs | Features | Holdout AUC | Holdout accuracy |
 |---|---|---|---|---|
-| logistic | base | 21 | 0.510 | 50.6% |
-| gboost | base | 21 | 0.505 | 50.1% |
-| logistic | expanded | 36 | 0.497 | 48.1% |
-| gboost | expanded | 36 | 0.490 | 49.1% |
+| logistic | base | 21 | 0.510 | 50.7% |
+| gboost | base | 21 | 0.500 | 50.2% |
+| logistic | expanded | 36 | 0.498 | 48.2% |
+| gboost | expanded | 36 | 0.490 | 49.6% |
 
 Inputs: BTC returns, volatility, volume, RSI, moving-average gaps, time of day; expanded adds ETH and SOL momentum/volatility, day of week, and US/Asia/Europe sessions. Order-book and trade-flow pressure are recorded with every call so they can be added once enough history builds up.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 44 | 0 | — | — | — | — |
-| Kalshi | 44 | 34 | 41.2% | 0.40 | −$0.44 | model 0.2456 vs market 0.2265 (43 windows) |
+| Polymarket | 45 | 0 | — | — | — | — |
+| Kalshi | 45 | 35 | 42.9% | 0.41 | +$0.09 | model 0.2450 vs market 0.2283 (44 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 23 3:15 AM | $81,705 | 46.6% | DOWN | 0.56/0.57 | 0.55/0.56 | pending | pending |
+| Oct 23 3:30 AM | $81,613 | 50.3% | UP (lean) | 0.34/0.35 | 0.33/0.34 | pending | pending |
+| Oct 23 3:15 AM | $81,705 | 46.6% | DOWN | 0.56/0.57 | 0.55/0.56 | $81,613 | ✅ right |
 | Oct 23 3:00 AM | $81,553 | 51.2% | UP (lean) | 0.45/0.46 | 0.45/0.46 | $81,705 | ✅ right |
 | Oct 23 2:45 AM | $81,566 | 50.3% | UP (lean) | 0.50/0.51 | 0.50/0.51 | $81,553 | ❌ wrong |
 | Oct 23 2:30 AM | $81,535 | 54.0% | UP | 0.68/0.69 | 0.67/0.68 | $81,566 | ✅ right |
@@ -74,6 +75,5 @@ If the market's Brier score stays lower than the model's, the market is the bett
 | Oct 22 6:00 PM | $81,343 | 49.9% | DOWN (lean) | 0.54/0.55 | 0.54/0.55 | $81,325 | ✅ right |
 | Oct 22 5:45 PM | $81,372 | 45.1% | DOWN | 0.54/0.55 | 0.58/0.59 | $81,343 | ✅ right |
 | Oct 22 5:30 PM | $81,101 | 50.8% | UP (lean) | 0.67/0.68 | 0.66/0.67 | $81,372 | ✅ right |
-| Oct 22 5:15 PM | $81,137 | 52.3% | UP (lean) | 0.61/0.62 | 0.62/0.63 | $81,101 | ❌ wrong |
 
 Each call compares Coinbase BTC-USD at the quarter-hour mark with the price 15 minutes later. AUC/accuracy near 50% is a coin flip; a 1–2 point edge can vanish after fees or spreads. Not financial advice.
