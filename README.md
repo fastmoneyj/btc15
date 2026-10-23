@@ -1,22 +1,22 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 22, 7:30 PM PT at $81,516 · P(up) 46.5% · confident · resolves 7:45 PM
+Oct 22, 7:30 PM PT at $81,516 · P(up) 46.4% · confident · resolves 7:45 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 8/14 (57.1%) | 5/7 (71.4%) | 57.1% over 14 calls | 50.7% |
+| 8/14 (57.1%) | 5/7 (71.4%) | 57.1% over 14 calls | 51.0% |
 
-Model retrained Oct 22 6:33 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
+Model retrained Oct 22 7:31 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
-**In use:** gboost / base inputs (21 features). Each hour four candidates compete on held-out data and the best is kept:
+**In use:** logistic / base inputs (21 features). Each hour four candidates compete on held-out data and the best is kept:
 
 | Model | Inputs | Features | Holdout AUC | Holdout accuracy |
 |---|---|---|---|---|
-| logistic | base | 21 | 0.509 | 50.7% |
-| gboost | base | 21 | 0.509 | 50.7% |
-| logistic | expanded | 36 | 0.498 | 47.8% |
-| gboost | expanded | 36 | 0.501 | 50.3% |
+| logistic | base | 21 | 0.509 | 51.0% |
+| gboost | base | 21 | 0.500 | 50.1% |
+| logistic | expanded | 36 | 0.497 | 47.7% |
+| gboost | expanded | 36 | 0.494 | 49.6% |
 
 Inputs: BTC returns, volatility, volume, RSI, moving-average gaps, time of day; expanded adds ETH and SOL momentum/volatility, day of week, and US/Asia/Europe sessions. Order-book and trade-flow pressure are recorded with every call so they can be added once enough history builds up.
 
@@ -35,7 +35,7 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 7:30 PM | $81,516 | 46.5% | DOWN | 0.50/0.51 | 0.51/0.52 | pending | pending |
+| Oct 22 7:30 PM | $81,516 | 46.4% | DOWN | 0.84/0.85 | 0.83/0.84 | pending | pending |
 | Oct 22 7:15 PM | $81,291 | 48.8% | DOWN (lean) | 0.45/0.47 | 0.46/0.47 | $81,516 | ❌ wrong |
 | Oct 22 7:00 PM | $81,233 | 48.9% | DOWN (lean) | 0.46/0.47 | 0.42/0.43 | $81,291 | ❌ wrong |
 | Oct 22 6:45 PM | $81,380 | 45.9% | DOWN | 0.61/0.62 | 0.60/0.61 | $81,233 | ✅ right |
