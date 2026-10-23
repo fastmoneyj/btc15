@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 22, 11:00 PM PT at $81,715 · P(up) 45.9% · confident · resolves 11:15 PM
+Oct 22, 11:15 PM PT at $81,787 · P(up) 48.9% · lean · resolves 11:30 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 14/28 (50.0%) | 8/14 (57.1%) | 50.0% over 28 calls | 50.6% |
+| 14/29 (48.3%) | 8/15 (53.3%) | 48.3% over 29 calls | 50.6% |
 
 Model retrained Oct 22 10:23 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 28 | 0 | — | — | — | — |
-| Kalshi | 28 | 23 | 39.1% | 0.40 | −$0.72 | model 0.2440 vs market 0.2177 (27 windows) |
+| Polymarket | 29 | 0 | — | — | — | — |
+| Kalshi | 29 | 24 | 41.7% | 0.40 | −$0.13 | model 0.2458 vs market 0.2234 (28 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 22 11:00 PM | $81,715 | 45.9% | DOWN | 0.39/0.40 | 0.38/0.39 | pending | pending |
+| Oct 22 11:15 PM | $81,787 | 48.9% | DOWN (lean) | 0.51/0.52 | 0.55/0.56 | pending | pending |
+| Oct 22 11:00 PM | $81,715 | 45.9% | DOWN | 0.39/0.40 | 0.38/0.39 | $81,787 | ❌ wrong |
 | Oct 22 10:45 PM | $81,690 | 46.2% | DOWN | 0.61/0.62 | 0.64/0.65 | $81,715 | ❌ wrong |
 | Oct 22 10:30 PM | $81,516 | 53.9% | UP | 0.39/0.42 | 0.39/0.40 | $81,690 | ✅ right |
 | Oct 22 10:15 PM | $81,724 | 47.8% | DOWN (lean) | 0.48/0.49 | 0.52/0.53 | $81,516 | ✅ right |
