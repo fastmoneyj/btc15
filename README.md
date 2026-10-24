@@ -5,18 +5,18 @@ Oct 24, 8:15 AM PT at $79,614 · P(up) 58.9% · confident · resolves 8:30 AM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 79/159 (49.7%) | 31/61 (50.8%) | 47.9% over 96 calls | 51.1% |
+| 79/159 (49.7%) | 31/61 (50.8%) | 47.9% over 96 calls | 50.9% |
 
-Model retrained Oct 24 7:19 AM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
+Model retrained Oct 24 8:18 AM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
 **In use:** logistic / base inputs (21 features). Each hour four candidates compete on held-out data and the best is kept:
 
 | Model | Inputs | Features | Holdout AUC | Holdout accuracy |
 |---|---|---|---|---|
-| logistic | base | 21 | 0.513 | 51.1% |
-| gboost | base | 21 | 0.511 | 50.1% |
-| logistic | expanded | 36 | 0.501 | 48.7% |
-| gboost | expanded | 36 | 0.500 | 50.1% |
+| logistic | base | 21 | 0.513 | 50.9% |
+| gboost | base | 21 | 0.505 | 49.8% |
+| logistic | expanded | 36 | 0.500 | 48.6% |
+| gboost | expanded | 36 | 0.506 | 50.2% |
 
 Inputs: BTC returns, volatility, volume, RSI, moving-average gaps, time of day; expanded adds ETH and SOL momentum/volatility, day of week, and US/Asia/Europe sessions. Order-book and trade-flow pressure are recorded with every call so they can be added once enough history builds up.
 
