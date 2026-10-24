@@ -1,22 +1,22 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **DOWN**
-Oct 23, 7:30 PM PT at $80,855 · P(up) 49.4% · lean · resolves 7:45 PM
+Oct 23, 7:30 PM PT at $80,855 · P(up) 49.5% · lean · resolves 7:45 PM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 55/108 (50.9%) | 20/34 (58.8%) | 49.0% over 96 calls | 51.1% |
+| 55/108 (50.9%) | 20/34 (58.8%) | 49.0% over 96 calls | 50.9% |
 
-Model retrained Oct 23 6:35 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
+Model retrained Oct 23 7:32 PM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
 **In use:** logistic / base inputs (21 features). Each hour four candidates compete on held-out data and the best is kept:
 
 | Model | Inputs | Features | Holdout AUC | Holdout accuracy |
 |---|---|---|---|---|
-| logistic | base | 21 | 0.513 | 51.1% |
-| gboost | base | 21 | 0.506 | 50.2% |
-| logistic | expanded | 36 | 0.500 | 48.4% |
-| gboost | expanded | 36 | 0.494 | 49.4% |
+| logistic | base | 21 | 0.512 | 50.9% |
+| gboost | base | 21 | 0.503 | 50.1% |
+| logistic | expanded | 36 | 0.498 | 48.0% |
+| gboost | expanded | 36 | 0.498 | 49.8% |
 
 Inputs: BTC returns, volatility, volume, RSI, moving-average gaps, time of day; expanded adds ETH and SOL momentum/volatility, day of week, and US/Asia/Europe sessions. Order-book and trade-flow pressure are recorded with every call so they can be added once enough history builds up.
 
@@ -35,7 +35,7 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 23 7:30 PM | $80,855 | 49.4% | DOWN (lean) | 0.48/0.49 | 0.49/0.50 | pending | pending |
+| Oct 23 7:30 PM | $80,855 | 49.5% | DOWN (lean) | 0.40/0.41 | 0.42/0.43 | pending | pending |
 | Oct 23 7:15 PM | $80,827 | 47.2% | DOWN (lean) | 0.45/0.46 | 0.46/0.47 | $80,855 | ❌ wrong |
 | Oct 23 7:00 PM | $80,823 | 49.0% | DOWN (lean) | 0.44/0.45 | 0.47/0.48 | $80,827 | ❌ wrong |
 | Oct 23 6:45 PM | $80,738 | 51.2% | UP (lean) | 0.48/0.49 | 0.50/0.51 | $80,823 | ✅ right |
