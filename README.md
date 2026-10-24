@@ -1,11 +1,11 @@
 # BTC 15-Minute Predictor
 
 ## Latest call: **UP**
-Oct 24, 9:00 AM PT at $79,691 · P(up) 51.0% · lean · resolves 9:15 AM
+Oct 24, 9:15 AM PT at $79,739 · P(up) 52.3% · lean · resolves 9:30 AM
 
 | Live record | Confident calls | Last 24 h | Model holdout accuracy |
 |---|---|---|---|
-| 81/162 (50.0%) | 33/64 (51.6%) | 46.9% over 96 calls | 50.9% |
+| 82/163 (50.3%) | 33/64 (51.6%) | 47.9% over 96 calls | 50.9% |
 
 Model retrained Oct 24 8:18 AM PT on 16,989 fifteen-minute windows from the last 60 days. It retrains every hour, so every new outcome feeds the next model.
 
@@ -26,8 +26,8 @@ At each call the job records the Polymarket and Kalshi prices for that same 15-m
 
 | Market | Windows priced | Paper bets settled | Win rate | Avg price paid | Total P&L per $1 contract | Model vs market accuracy (Brier, lower is better) |
 |---|---|---|---|---|---|---|
-| Polymarket | 162 | 0 | — | — | — | — |
-| Kalshi | 162 | 107 | 42.1% | 0.39 | +$1.34 | model 0.2495 vs market 0.2395 (161 windows) |
+| Polymarket | 163 | 0 | — | — | — | — |
+| Kalshi | 163 | 108 | 42.6% | 0.39 | +$1.96 | model 0.2494 vs market 0.2405 (162 windows) |
 
 If the market's Brier score stays lower than the model's, the market is the better forecaster and the paper P&L should drift negative. That would mean there's no edge to trade.
 
@@ -35,7 +35,8 @@ If the market's Brier score stays lower than the model's, the market is the bett
 
 | Time (PT) | Price | P(up) | Call | Polymarket UP bid/ask | Kalshi YES bid/ask | 15 min later | Result |
 |---|---|---|---|---|---|---|---|
-| Oct 24 9:00 AM | $79,691 | 51.0% | UP (lean) | 0.34/0.35 | 0.35/0.36 | pending | pending |
+| Oct 24 9:15 AM | $79,739 | 52.3% | UP (lean) | 0.40/0.41 | 0.40/0.41 | pending | pending |
+| Oct 24 9:00 AM | $79,691 | 51.0% | UP (lean) | 0.34/0.35 | 0.35/0.36 | $79,739 | ✅ right |
 | Oct 24 8:45 AM | $79,343 | 56.2% | UP | 0.50/0.51 | 0.50/0.51 | $79,691 | ✅ right |
 | Oct 24 8:30 AM | $79,255 | 55.3% | UP | 0.50/0.51 | 0.49/0.50 | $79,343 | ✅ right |
 | Oct 24 8:15 AM | $79,614 | 58.9% | UP | 0.55/0.56 | 0.00/0.00 | $79,255 | ❌ wrong |
@@ -74,6 +75,5 @@ If the market's Brier score stays lower than the model's, the market is the bett
 | Oct 24 12:00 AM | $80,680 | 50.5% | UP (lean) | 0.34/0.35 | 0.38/0.39 | $80,707 | ✅ right |
 | Oct 23 11:45 PM | $80,662 | 52.4% | UP (lean) | 0.49/0.50 | 0.48/0.49 | $80,680 | ✅ right |
 | Oct 23 11:30 PM | $80,677 | 53.5% | UP | 0.47/0.48 | 0.48/0.49 | $80,662 | ❌ wrong |
-| Oct 23 11:15 PM | $80,658 | 55.6% | UP | 0.36/0.37 | 0.38/0.39 | $80,677 | ✅ right |
 
 Each call compares Coinbase BTC-USD at the quarter-hour mark with the price 15 minutes later. AUC/accuracy near 50% is a coin flip; a 1–2 point edge can vanish after fees or spreads. Not financial advice.
